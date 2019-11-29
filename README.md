@@ -85,3 +85,40 @@ let intensity = Binding<Double>(
 Important: Now that there is some logic inside the body property, you must place return before the NavigationView, like this: return NavigationView {.
 
 
+### Day 66
+
+#### ActionSheet
+
+Same pattern as the .sheet modifier:
+
+```Swift
+.actionSheet(isPresented: $showingFilterSheet) {
+    ActionSheet(title: Text("Select a filter"), buttons: [
+    .default(Text("Sepia Tone")) { self.setFilter(CIFilter.sepiaTone()) },
+    .default(Text("Vignette")) { self.setFilter(CIFilter.vignette()) },
+    .cancel()
+])
+} 
+```
+
+#### Saving an image to the Photos Album
+
+We need to use wrap UIImageWriteToSavedPhotosAlbum() with a class that inherits NSObject, so that it has a callback method that is marked with @objc:
+
+```Swift
+class ImageSaver: NSObject {
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveError), nil)
+    }
+
+    @objc func saveError(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        // save complete
+    }
+} 
+```
+The actual save/fail (with error) can be sent back to SwiftUI - so check the final implementation for that.
+
+### Day 67 - Challenges
+1. Try making the Save button show an error if there was no image in the image view.
+2. Make the Change Filter button change its title to show the name of the currently selected filter.
+3. Experiment with having more than one slider, to control each of the input keys you care about. For example, you might have one for radius and one for intensity.
